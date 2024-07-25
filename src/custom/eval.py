@@ -109,14 +109,13 @@ def inference_all(net, state_dict_path, test_metadata_df, cfg, data_path):
                 _preds += [out.cpu().numpy()]
             _preds = np.vstack(_preds)
             preds.append(_preds)
-    preds = np.array(preds)
     torch.cuda.empty_cache()
     avg_preds = np.array([p.mean(axis=0) for p in preds])
     test_metadata_df['predicted_class_id'] = avg_preds.argmax(axis=-1)
     return test_metadata_df, preds
 
 
-def error_analysis(exp_path, filename=None, tag=''):
+def error_analysis(exp_path, dset, filename=None, tag=''):
     """
     Helper function to automatize the error analysis.
     Computes and plots a confusion matrix, as well as
@@ -133,16 +132,16 @@ def error_analysis(exp_path, filename=None, tag=''):
     if filename:
         df = pd.read_csv(f'{exp_path}/{filename}')
     else:
-        df = pd.read_csv(f'{exp_path}/val_predictions_k-random.csv')
+        df = pd.read_csv(f'{exp_path}/{dset}_predictions_k-random.csv')
 
     df_eval = df[['label', 'predicted_class_id']]
     y_pred = df_eval['predicted_class_id']
     y_true = df_eval['label']
 
     cm = metrics.confusion_matrix(y_true, y_pred)
-    np.save(f"{exp_path}/cm{tag}.npy", cm)
+    np.save(f"{exp_path}/{dset}_cm{tag}.npy", cm)
 
-    plot_confusion_matrix(cm, exp_path)
+    plot_confusion_matrix(cm, exp_path, dset)
 
     report = metrics.classification_report(y_true, y_pred, digits=3, output_dict=True)
     evaluation = pd.DataFrame(report).transpose()
@@ -158,10 +157,10 @@ def error_analysis(exp_path, filename=None, tag=''):
         evaluation['accuracy'][i] = (len(df_to_eval) - wrong) / len(df_to_eval)
         wrong = 0
     pd.options.display.float_format = "{:,.2f}".format
-    evaluation.to_csv(f'{exp_path}/val_evaluation{tag}.csv')
+    evaluation.to_csv(f'{exp_path}/{dset}_evaluation{tag}.csv')
 
 
-def plot_confusion_matrix(cm, exp_path):
+def plot_confusion_matrix(cm, exp_path, dset):
     """
     Plotting function for confusion matrices.
     A confusion matrix (cm) can be passed and
@@ -180,6 +179,6 @@ def plot_confusion_matrix(cm, exp_path):
     plt.xticks(rotation=90)
     ax.set_ylabel('True', fontsize=20)
     plt.yticks(rotation=0)
-    plt.title('Confusion Matrix Validation Set', fontsize=20)
-    plt.savefig(f'{exp_path}/conf_matrix_best_model.png')
+    plt.title(f'Confusion Matrix: {dset} Set', fontsize=20)
+    plt.savefig(f'{exp_path}/{dset}_conf_matrix_best_model.png')
     plt.close()
