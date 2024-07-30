@@ -23,7 +23,7 @@ def inference_k_random(net, state_dict_path, test_dl, test_metadata_df, k=1):
 
     Parameters
     ----------
-    net: Pytorch network class, e.g. SimpleCNN() defined in net.py.
+    net: Pytorch network class, e.g. SpectrogramCNN() defined in net.py.
     state_dict_path: str. Path to a Pytorch state dictionary containing the model weights.
     test_dl: Pytorch Dataloader
     test_metadata_df: Pandas dataframe containing the metadata of all test instances
@@ -70,7 +70,7 @@ def inference_all(net, state_dict_path, test_metadata_df, cfg, data_path):
 
     Parameters
     ----------
-    net: Pytorch network class, e.g. SimpleCNN() defined in net.py.
+    net: Pytorch network class, e.g. SpectrogramCNN() defined in net.py.
     state_dict_path: str. Path to a Pytorch state dictionary containing the model weights.
     test_metadata_df: Pandas dataframe containing the metadata of all test instances
     cfg: SimpleNameSpace containing all configurations

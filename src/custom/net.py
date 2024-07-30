@@ -6,7 +6,7 @@ import torchaudio as ta
 from .utils import min_max_norm, Mixup, Compose, OneOf, MaskFrequency, MaskTime
 
 
-class SimpleCNN(nn.Module):
+class SpectrogramCNN(nn.Module):
     def __init__(self, cfg, init_backbone=True):
         """
         Pytorch network class containing the transformation from waveform to
@@ -21,7 +21,7 @@ class SimpleCNN(nn.Module):
         init_backbone: bool (Default=True). Whether to download and initialize the backbone.
                        Not always necessary when debugging.
         """
-        super(SimpleCNN, self).__init__()
+        super(SpectrogramCNN, self).__init__()
 
         self.cfg = cfg
         self.n_classes = cfg.n_classes
@@ -40,7 +40,7 @@ class SimpleCNN(nn.Module):
         )
 
         self.amplitude_to_db = ta.transforms.AmplitudeToDB(top_db=cfg.top_db)
-        self.wav2img = torch.nn.Sequential(self.mel_spec,
+        self.wav2timefreq = torch.nn.Sequential(self.mel_spec,
                                            self.amplitude_to_db)
 
         if init_backbone:
@@ -74,7 +74,7 @@ class SimpleCNN(nn.Module):
         x = x[:, None, :]
 
         # (bs, channel, mel, time)
-        x = self.wav2img(x)
+        x = self.wav2timefreq(x)
 
         if self.cfg.minmax_norm:
             x = min_max_norm(x, min_val=self.cfg.min, max_val=self.cfg.max)
