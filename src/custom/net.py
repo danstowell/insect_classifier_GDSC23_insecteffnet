@@ -2,6 +2,7 @@ import torch
 import timm
 import torch.nn as nn
 import torchaudio as ta
+from speechbrain.lobes import features as sbfeatures
 
 from .utils import min_max_norm, Mixup, Compose, OneOf, MaskFrequency, MaskTime
 
@@ -26,22 +27,34 @@ class SpectrogramCNN(nn.Module):
         self.cfg = cfg
         self.n_classes = cfg.n_classes
 
-        # Initializes the transformation from waveform to mel spectrogram
-        self.mel_spec = ta.transforms.MelSpectrogram(
-            sample_rate=cfg.sample_rate,
-            n_fft=cfg.n_fft,
-            win_length=cfg.window_size,
-            hop_length=cfg.hop_length,
-            f_min=cfg.fmin,
-            f_max=cfg.fmax,
-            n_mels=cfg.n_mels,
-            power=cfg.power,
-            normalized=cfg.mel_normalized,
-        )
+        if cfg.use_leaf:
+            self.wav2timefreq = sbfeatures.Leaf(
+                in_channels=1,
+                out_channels=cfg.n_mels,
+                sample_rate=cfg.sample_rate,
+                window_len=cfg.window_size * 1000 / cfg.sample_rate, # in ms
+                window_stride=cfg.hop_length * 1000 / cfg.sample_rate, # in ms
+                min_freq=cfg.fmin,
+                max_freq=cfg.fmax,
+                skip_transpose=True  # this gives output in [batch, channel, time] which should match the TA.mel output
+            )
+        else:
+            # Initializes the transformation from waveform to mel spectrogram
+            self.mel_spec = ta.transforms.MelSpectrogram(
+                sample_rate=cfg.sample_rate,
+                n_fft=cfg.n_fft,
+                win_length=cfg.window_size,
+                hop_length=cfg.hop_length,
+                f_min=cfg.fmin,
+                f_max=cfg.fmax,
+                n_mels=cfg.n_mels,
+                power=cfg.power,
+                normalized=cfg.mel_normalized,
+            )
 
-        self.amplitude_to_db = ta.transforms.AmplitudeToDB(top_db=cfg.top_db)
-        self.wav2timefreq = torch.nn.Sequential(self.mel_spec,
-                                           self.amplitude_to_db)
+            self.amplitude_to_db = ta.transforms.AmplitudeToDB(top_db=cfg.top_db)
+            self.wav2timefreq = torch.nn.Sequential(self.mel_spec,
+                                               self.amplitude_to_db)
 
         if init_backbone:
             # Initialize pre-trained CNN
@@ -75,6 +88,8 @@ class SpectrogramCNN(nn.Module):
 
         # (bs, channel, mel, time)
         x = self.wav2timefreq(x)
+        if self.cfg.use_leaf:
+            x = x[:, None, :, :]
 
         if self.cfg.minmax_norm:
             x = min_max_norm(x, min_val=self.cfg.min, max_val=self.cfg.max)
