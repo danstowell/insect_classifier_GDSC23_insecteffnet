@@ -34,6 +34,7 @@ class TrainModule(L.LightningModule):
         self.model = model
         # Create loss module
         self.loss_fn = loss_fn
+        self.use_leaf = cfg.use_leaf
         # Data augmentation function to apply a fixed set of impulse responses
         # ir_paths has to be adapted when compute environment is changed
         # Should be a list of .wav files, e.g. from https://www.openair.hosted.york.ac.uk/
@@ -70,10 +71,11 @@ class TrainModule(L.LightningModule):
         # "batch" is the output of the training data loader and a dictionary containing 'wave' and 'labels'
         wave, labels = batch['wave'], batch['labels']
         batch_size = wave.shape[0]
+        model = self.model
 
         # Batch has to be reshaped for the impulse response function
         wave = self.impulse(wave.view(batch_size, 1, -1)).view(batch_size, -1)
-        preds, labels = self.model(wave, labels)
+        preds, labels = model(wave, labels)
         loss = self.loss_fn(preds, labels)
 
         # Calculate Metrics
@@ -89,6 +91,14 @@ class TrainModule(L.LightningModule):
         self.log("train_precision", precision, on_step=True, on_epoch=True)
         self.log("train_recall", recall, on_step=False, on_epoch=True)
         self.log("train_f1", f1, on_step=False, on_epoch=True, prog_bar=True)
+
+        if self.use_leaf:
+            self.log("leaf_alpha", model.wav2timefreq.compression.alpha.mean(), on_step=False, on_epoch=True, prog_bar=False)
+            self.log("leaf_delta", model.wav2timefreq.compression.delta.mean(), on_step=False, on_epoch=True, prog_bar=False)
+            self.log("leaf_root",  model.wav2timefreq.compression.root.mean(), on_step=False, on_epoch=True, prog_bar=False)
+            self.log("leaf_emaweights", model.wav2timefreq.compression.ema._weights.mean(), on_step=False, on_epoch=True, prog_bar=False)
+            self.log("leaf_poolingweights", model.wav2timefreq.pooling.weights.mean(), on_step=False, on_epoch=True, prog_bar=False)
+            self.log("leaf_poolingbias", model.wav2timefreq.pooling._bias.mean(), on_step=False, on_epoch=True, prog_bar=False)
 
         return loss  # Return tensor to call ".backward" on
 
