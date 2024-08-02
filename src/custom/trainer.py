@@ -1,11 +1,12 @@
 from glob import glob
 
 import lightning as L
+import torch
+import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from sklearn.metrics import precision_recall_fscore_support
 from torch_audiomentations import ApplyImpulseResponse
-
 
 class TrainModule(L.LightningModule):
     def __init__(self, model, loss_fn, optimizer_name, optimizer_hparams, cfg):
@@ -46,13 +47,15 @@ class TrainModule(L.LightningModule):
         return self.model(wave)
 
     def configure_optimizers(self):
+        #params_decay, params_no_decay = (self.parameters(), [])  # This default option skips the weightdecay question, using Lightning's convenience method for the parameters
+        params_decay, params_no_decay = get_wd_params(self.model)
         # Choose Adam or SGD as optimizers.
         if self.hparams.optimizer_name == "Adam":
             # AdamW is Adam with a correct implementation of weight decay (see here
             # for details: https://arxiv.org/pdf/1711.05101.pdf)
-            optimizer = optim.AdamW(self.parameters(), **self.hparams.optimizer_hparams)
+            optimizer = optim.AdamW([{'params': params_decay}, {'params': params_no_decay, 'weight_decay': 0}], **self.hparams.optimizer_hparams)
         elif self.hparams.optimizer_name == "SGD":
-            optimizer = optim.SGD(self.parameters(), **self.hparams.optimizer_hparams)
+            optimizer = optim.SGD(  [{'params': params_decay}, {'params': params_no_decay, 'weight_decay': 0}], **self.hparams.optimizer_hparams)
         else:
             assert False, f'Unknown optimizer: "{self.hparams.optimizer_name}"'
 
@@ -102,3 +105,21 @@ class TrainModule(L.LightningModule):
         self.log("val_precision", precision, on_step=False, on_epoch=True)
         self.log("val_recall", recall, on_step=False, on_epoch=True)
         self.log("val_f1", f1, on_step=False, on_epoch=True, prog_bar=True)
+
+@torch.no_grad()
+def get_wd_params(model):
+    """Divide the learnable parameters into those which should have weight decay, and those which should not.
+    See https://discuss.pytorch.org/t/weight-decay-only-for-weights-of-nn-linear-and-nn-conv/114348 for discussion.
+    We use this here specifically to exclude LEAF parameters from weight decay.
+    """
+    wd_params = list()
+    no_wd_params = list()
+    for p in model.named_parameters():
+        if p[0].startswith("wav2timefreq"):
+            no_wd_params.append(p[1])
+        else:
+            wd_params.append(p[1])
+    # Only weights of specific layers should undergo weight decay.
+    print(f"Parameter groups: {len(wd_params)} will use weight decay, {len(no_wd_params)} will not.")
+    #assert len(wd_params) + len(no_wd_params) == len(all_params), "Sanity check failed."
+    return wd_params, no_wd_params
