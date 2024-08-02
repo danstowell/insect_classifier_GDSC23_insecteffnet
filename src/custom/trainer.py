@@ -79,26 +79,27 @@ class TrainModule(L.LightningModule):
         loss = self.loss_fn(preds, labels)
 
         # Calculate Metrics
-        acc = (preds.argmax(dim=-1) == labels.argmax(dim=-1)).float().mean()
-        precision, recall, f1, _ = precision_recall_fscore_support(labels.argmax(dim=-1).detach().cpu().numpy(),
-                                                                   preds.argmax(dim=-1).detach().cpu().numpy(),
-                                                                   average="macro",
-                                                                   zero_division=1)
+        with torch.no_grad():
+            acc = (preds.argmax(dim=-1) == labels.argmax(dim=-1)).float().mean()
+            precision, recall, f1, _ = precision_recall_fscore_support(labels.argmax(dim=-1).detach().cpu().numpy(),
+                                                                       preds.argmax(dim=-1).detach().cpu().numpy(),
+                                                                       average="macro",
+                                                                       zero_division=1)
 
-        # Logs the accuracy per epoch to tensorboard (weighted average over batches)
-        self.log("train_acc", acc, on_step=False, on_epoch=True)
-        self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True)
-        self.log("train_precision", precision, on_step=True, on_epoch=True)
-        self.log("train_recall", recall, on_step=False, on_epoch=True)
-        self.log("train_f1", f1, on_step=False, on_epoch=True, prog_bar=True)
+            # Logs the accuracy per epoch to tensorboard (weighted average over batches)
+            self.log("train_acc", acc, on_step=False, on_epoch=True)
+            self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True)
+            self.log("train_precision", precision, on_step=True, on_epoch=True)
+            self.log("train_recall", recall, on_step=False, on_epoch=True)
+            self.log("train_f1", f1, on_step=False, on_epoch=True, prog_bar=True)
 
-        if self.use_leaf:
-            self.log("leaf_alpha", model.wav2timefreq.compression.alpha.mean(), on_step=False, on_epoch=True, prog_bar=False)
-            self.log("leaf_delta", model.wav2timefreq.compression.delta.mean(), on_step=False, on_epoch=True, prog_bar=False)
-            self.log("leaf_root",  model.wav2timefreq.compression.root.mean(), on_step=False, on_epoch=True, prog_bar=False)
-            self.log("leaf_emaweights", model.wav2timefreq.compression.ema._weights.mean(), on_step=False, on_epoch=True, prog_bar=False)
-            self.log("leaf_poolingweights", model.wav2timefreq.pooling.weights.mean(), on_step=False, on_epoch=True, prog_bar=False)
-            self.log("leaf_poolingbias", model.wav2timefreq.pooling._bias.mean(), on_step=False, on_epoch=True, prog_bar=False)
+            if self.use_leaf:
+                self.log("leaf_alpha", model.wav2timefreq.compression.alpha.mean(), on_step=False, on_epoch=True, prog_bar=False)
+                self.log("leaf_delta", model.wav2timefreq.compression.delta.mean(), on_step=False, on_epoch=True, prog_bar=False)
+                self.log("leaf_root",  model.wav2timefreq.compression.root.mean(), on_step=False, on_epoch=True, prog_bar=False)
+                self.log("leaf_emaweights", model.wav2timefreq.compression.ema._weights.mean(), on_step=False, on_epoch=True, prog_bar=False)
+                self.log("leaf_poolingweights", model.wav2timefreq.pooling.weights.mean(), on_step=False, on_epoch=True, prog_bar=False)
+                self.log("leaf_poolingbias", model.wav2timefreq.pooling._bias.mean(), on_step=False, on_epoch=True, prog_bar=False)
 
         return loss  # Return tensor to call ".backward" on
 
