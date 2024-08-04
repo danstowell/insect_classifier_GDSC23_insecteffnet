@@ -36,6 +36,7 @@ class SpectrogramCNN(nn.Module):
                 window_stride=cfg.hop_length * 1000 / cfg.sample_rate, # in ms
                 min_freq=cfg.fmin,
                 max_freq=cfg.fmax,
+                learnable_pcen=True,
                 skip_transpose=True  # this gives output in [batch, channel, time] which should match the TA.mel output
             )
         else:
