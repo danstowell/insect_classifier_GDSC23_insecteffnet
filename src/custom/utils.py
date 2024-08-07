@@ -67,7 +67,7 @@ def get_min_max(cfg, dm, model):
     ----------
     cfg: SimpleNameSpace containing all configurations
     dm: Lightning Datamodule class, e.g. as defined in data.py.
-    model: Pytorch network class, e.g. SimpleCNN() defined in net.py.
+    model: Pytorch network class, e.g. SpectrogramCNN() defined in net.py.
 
     Returns
     -------
@@ -83,7 +83,7 @@ def get_min_max(cfg, dm, model):
     total_min = 1e3
     print('Gather min max statistics:')
     for batch in tqdm(dm.train_dataloader()):
-        spec = model.wav2img(batch['wave'][:, None, :])
+        spec = model.wav2timefreq(batch['wave'][:, None, :])
         if spec.max() > total_max:
             total_max = spec.max()
         if spec.min() < total_min:
