@@ -14,8 +14,10 @@ In case the audio is longer, it is chunked to pre-defined audio lengths that can
 Hence, to run the notebook, a set of window lengths and overlaps have to be defined.
 A reasonable heuristic is to choose the overlap as half of the window length.
 We experimented with values ranging from 3.5-7.5 seconds.
-While the final model was trained on 5 second windows with 2.5 overlaps, note that a 3.5 second window with 1 second
-overlap was also amongst the top submissions.
+Our preferred model was trained on 5 second windows with 2.5 overlaps.
+A 3.5 second window with 1 second overlap was also amongst the top submissions.
+
+We have now set this notebook to generate only 1 set of windows and overlaps (the `windows` variable in the code), but you could try others.
 
 ## 02_classweights.ipynb:
 Calculates different types of class weights. 
