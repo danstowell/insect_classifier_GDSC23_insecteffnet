@@ -25,14 +25,11 @@ data/
   classlist.csv           List of the classes and the species names they correspond to. -- This file will be generated.
 ~~~
 
-
-
 ## Insect audio recordings: InsectSet66
 
 "InsctSet66" is available at https://zenodo.org/records/8252141 . Download the zip of wavs, and the csv of metadata (these are separate downloads). Unzip the WAVS. (You will need 13 GB of disk space for the zip plus the unzipped audio.)
 
 You can store this anywhere you like. In the notebook file we assume that it has been unzipped to `data/InsectSet66` inside the repository, but it can be elsewhere -- just change the path used in that notebook.
-
 
 ## Impulse Responses (IR)
 
@@ -50,27 +47,14 @@ IR's used in this work are:
 Inside the `data` folder, create a subfolder `irs`, and inside that a subfolder `openair`. Move all download IR files there.
 An example path should have the following depth: ``irs/*/*/mono/*.wav``.
 
-
 ## Data file layout and preprocessing
 Once the audio and the IRs are downloaded, you should be ready to run the preprocessing notebook script which generates the audio files that will actually be used to train the classifier.
 
-The `data` directory contains the whole data in form of waveform files as well as a metadata csv file, that contains the exact filename, path and label for the training and validation data. Crucially, all data is supposed to have the same sampling frequency, but can vary in length.
-The metadata file 
-
-
-| file_name | unique_file | path | species | label | subset | sample_rate | num_frames | lenght |
-| ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
-| insect_dae_003.wav | insect_dae_003 | data/val/insect_dae_003.wav | insect_dae | 49 | validation | 44100 | 30870 | 7 | 
-| insect_bcd_001_dat1.wav | insect_bcd_001_dat1 | data/val/insect_bcd_001_dat1.wav | insect_bcd | 34 | validation | 44100 | 88200 | 2 | 
-| insect_abc_001.wav | insect_abc_001 | data/train/insect_abc_001.wav | insect_abc | 1 | train | 44100 | 4463050 | 10.5 | 
-| insect_dae_002.wav | insect_dae_002 | data/val/insect_dae_002.wav | insect_dae | 49 | validation | 44100 | 238140 | 5.4 |
-| insect_abc_002_edit.wav | insect_abc_002_edit | data/train/insect_abc_002_edit.wav | insect_abc | 1 | train | 44100 | 337571 | 7.65467 | 
-| insect_abb_001.wav | insect_abb_001 | data/train/insect_abb_001.wav | insect_abb | 7 | train | 44100 | 502740 | 11.4 | 
-
+NB we expect all the audio files to have the same sampling frequency, but can vary in length. If you use a different dataset you may need to check this.
 
 After using the 01_preprocess_waves notebooks a folder with data that contains waveforms at a given uniform length is created and placed into the production_data folder. This folder contains a metadata for the created files.
 For more detailed information look at the [README](https://github.com/Dom1L/GDSC23/blob/main/notebooks/README.md) in the notebooks folder.
-Note that the metadata for this customized files has a different structure, given as follows:
+The metadata for this customized files has a structure given as follows:
 
 | file_name | unique_file | path | label | subset |
 | ----------- | ----------- | ----------- | ----------- | ----------- |
@@ -79,5 +63,3 @@ Note that the metadata for this customized files has a different structure, give
 | insect_bcd_001_dat1.wav | insect_bcd_001_dat1 | data/production_data/crop-x-s/val/insect_bcd_001_dat1_loop.wav | 34 | validation | 
 | insect_bcd_001_dat1.wav | insect_bcd_001_dat1 | data/production_data/crop-x-s/val/insect_bcd_001_dat1_padded.wav | 34 | validation | 
 | insect_abc_001.wav | insect_abc_001 | data/production_data/crop-x-s/train/insect_abc_001_chunk1.wav | 1 | train |
-
-
