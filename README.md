@@ -194,3 +194,6 @@ Additionally, we want to thank **AWS**, for providing us with their state of the
 ## Licenses
 The used impulse response data is available on [OpenAir](https://www.openair.hosted.york.ac.uk/) licenced under CC BY 4.0.
 All additional Python dependencies are licensed either under MIT or Apache 2.0.
+
+For the software license that covers this repository and the InsectEffNet code, see the file LICENSE.
+
