@@ -5,6 +5,10 @@ This folder contains all notebooks needed to run the model.
 The following is a detailed explanation of all the notebooks, their functionalities and how to use them. 
 They are designed to be run in series, however if the necessary preprocessing steps have already been performed then you can only run 04_run_training.
 
+## config_insecteffnet.yaml:
+
+This is a YAML file containing the main configuration settings for the neural network, the spectrogram calculation, the training, data augmentation, and so on. It is loaded by some of the notebooks. You can experiment with many of the parameters in here if you want to fine-tune performance.
+
 ## 01_preprocess_waves.ipynb:
 Preprocesses waveform data to uniform length and saves the data locally. 
 The notebook is a refactored and adapted version of Marius Faiß pre-processing [script](https://github.com/mariusfaiss/InsectSet47-InsectSet66-Adaptive-Representations-of-Sound-for-Automatic-Insect-Recognition/blob/main/SplitAudioChunks.py).
