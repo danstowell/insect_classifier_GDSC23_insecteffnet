@@ -13,3 +13,4 @@ timm
 tensorboard
 torch-audiomentations
 colorednoise
+codecarbon
