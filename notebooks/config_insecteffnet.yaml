@@ -1,4 +1,7 @@
 
+has_test_audio: true   # set this to False if you don't have access to the test audio (i.e. training and validation only)
+has_test_labels: true   # set this to False if you don't have access to the test labels
+
 wav_crop_len: 5     # Length of cropped files in seconds
 data_path_base: ../data/production_data
 n_classes: 66       # Number of classes
