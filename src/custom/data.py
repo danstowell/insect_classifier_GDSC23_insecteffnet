@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import torch
-import torchaudio
+import librosa
 import lightning.pytorch as pl
 from torch.utils.data import DataLoader, Dataset
 from torch.nn.functional import one_hot
@@ -58,11 +58,11 @@ class AudioDataset(Dataset):
         return len(self.filepaths)
 
     def __getitem__(self, idxs):
+        sample_rate = self.cfg.sample_rate
         # A single audio sample is loaded
-        wave, sample_rate = torchaudio.load(self.filepaths[idxs])
+        wave, _ = librosa.load(self.filepaths[idxs], sr=sample_rate, mono=True)
+        wave = torch.from_numpy(wave)
 
-        # We remove the channel dimension for now
-        wave = wave[0]
         start = 0
         # Cross-check whether file is as long as expected, e.g. 5s
         # If not, apply zero-padding
