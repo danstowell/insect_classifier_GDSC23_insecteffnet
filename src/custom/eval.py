@@ -115,7 +115,7 @@ def inference_all(net, state_dict_path, test_metadata_df, cfg, data_path):
     return test_metadata_df, preds
 
 
-def error_analysis(exp_path, dset, n_classes, filename=None, tag=''):
+def error_analysis(exp_path, dset, n_classes, filename=None, tag='', classlabels=None):
     """
     Helper function to automatize the error analysis.
     Computes and plots a confusion matrix, as well as
@@ -145,17 +145,12 @@ def error_analysis(exp_path, dset, n_classes, filename=None, tag=''):
 
     report = metrics.classification_report(y_true, y_pred, digits=3, output_dict=True)
     evaluation = pd.DataFrame(report).transpose()
-    evaluation["accuracy"] = ""
-    wrong = 0
-    for i in range(0, n_classes):
-        df_to_eval = df_eval[df_eval['label'] == i]
-        for j in df_to_eval['predicted_class_id']:
-            if j != i:
-                wrong += 1
-            else:
-                continue
-        evaluation['accuracy'][i] = (len(df_to_eval) - wrong) / len(df_to_eval)
-        wrong = 0
+
+    if classlabels:
+        evaluation["class_label"] = ""
+        for i in range(n_classes):
+            evaluation['class_label'][i] = classlabels[i]
+
     pd.options.display.float_format = "{:,.2f}".format
     evaluation.to_csv(f'{exp_path}/{dset}_evaluation{tag}.csv')
 
