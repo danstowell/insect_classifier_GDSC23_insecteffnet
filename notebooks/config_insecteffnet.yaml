@@ -9,7 +9,7 @@ pretrained: true    # Use pretrained model
 backbone: tf_efficientnetv2_s.in21k     # image classification model (from list_models)
 in_chans: 1
 num_workers: 4      # Number of parallelized CPUs
-include_val: true   # Validation-set included / excluded
+include_val: false   # Validation-set included / excluded from the training (typically should be false, except if training final deployment)
 max_amp: false      # Experimental feature
 
 datasubsetnames:

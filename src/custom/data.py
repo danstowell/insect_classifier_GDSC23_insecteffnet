@@ -127,10 +127,10 @@ class DataModule(pl.LightningDataModule):
             if self.cfg.include_val:
                 self.train = AudioDataset(self.df_metadata, mode='train', cfg=self.cfg)
             else:
-                self.train = AudioDataset(self.df_metadata[self.df_metadata['subset'] == 'train'], mode='train',
+                self.train = AudioDataset(self.df_metadata[self.df_metadata['subset'] == self.cfg.datasubsetnames['train']], mode='train',
                                           cfg=self.cfg)
 
-            self.val = AudioDataset(self.df_metadata[self.df_metadata['subset'] == 'validation'], mode='val',
+            self.val = AudioDataset(self.df_metadata[self.df_metadata['subset'] == self.cfg.datasubsetnames['val']], mode='val',
                                     cfg=self.cfg)
 
     def train_dataloader(self):
