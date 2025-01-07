@@ -5,6 +5,10 @@ This folder contains all notebooks needed to run the model.
 The following is a detailed explanation of all the notebooks, their functionalities and how to use them. 
 They are designed to be run in series, however if the necessary preprocessing steps have already been performed then you can only run 04_run_training.
 
+## config_insecteffnet.yaml:
+
+This is a YAML file containing the main configuration settings for the neural network, the spectrogram calculation, the training, data augmentation, and so on. It is loaded by some of the notebooks. You can experiment with many of the parameters in here if you want to fine-tune performance.
+
 ## 01_preprocess_waves.ipynb:
 Preprocesses waveform data to uniform length and saves the data locally. 
 The notebook is a refactored and adapted version of Marius Faiß pre-processing [script](https://github.com/mariusfaiss/InsectSet47-InsectSet66-Adaptive-Representations-of-Sound-for-Automatic-Insect-Recognition/blob/main/SplitAudioChunks.py).
@@ -14,8 +18,10 @@ In case the audio is longer, it is chunked to pre-defined audio lengths that can
 Hence, to run the notebook, a set of window lengths and overlaps have to be defined.
 A reasonable heuristic is to choose the overlap as half of the window length.
 We experimented with values ranging from 3.5-7.5 seconds.
-While the final model was trained on 5 second windows with 2.5 overlaps, note that a 3.5 second window with 1 second
-overlap was also amongst the top submissions.
+Our preferred model was trained on 5 second windows with 2.5 overlaps.
+A 3.5 second window with 1 second overlap was also amongst the top submissions.
+
+We have now set this notebook to generate only 1 set of windows and overlaps (the `windows` variable in the code), but you could try others.
 
 ## 02_classweights.ipynb:
 Calculates different types of class weights. 
