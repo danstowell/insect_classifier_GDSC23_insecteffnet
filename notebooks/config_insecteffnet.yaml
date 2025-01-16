@@ -12,6 +12,10 @@ num_workers: 4      # Number of parallelized CPUs
 include_val: true   # Validation-set included / excluded
 max_amp: false      # Experimental feature
 
+datasubsetnames:
+    train: 'train'
+    val: 'validation'
+    test: 'test'
 
 # Training Hyperparameters
 n_epochs: 18                 # Number of epochs
